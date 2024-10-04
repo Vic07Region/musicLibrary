@@ -24,6 +24,8 @@ DB_NAME=dbname
 
 DB_DRIVER=postgres
 MIGRATION_DIRS=./internal/database/migrations
+
+## закомоентированные поля не обязательны к заполнению
 ```
 
 
