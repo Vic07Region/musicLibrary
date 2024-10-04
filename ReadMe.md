@@ -11,7 +11,7 @@
 APP_HOST=:8080
 
 #THIRD API SERVICE BASE URL
-API_BASEURL=http://example.com/api
+API_BASEURL=https://example.com/api
 
 #database env param
 DB_USER=postgres
@@ -29,20 +29,20 @@ MIGRATION_DIRS=./internal/database/migrations
 
 Карта проекта:
 
-*`cmd/main.go` точка входа
+* `cmd/main.go` точка входа
 
-*`internal/connector/songinfo` запрос к другому api для получения подробной информации о песне
+* `internal/connector/songinfo` запрос к другому api для получения подробной информации о песне
 
-*`internal/database` слой бд для выполнения запросов к базе
+* `internal/database` слой бд для выполнения запросов к базе
 
-*`internal/database/migrator` мигратор бд
+* `internal/database/migrator` мигратор бд
 
-*`internal/database/migration` миграции
+* `internal/database/migration` миграции
 
-*`internal/service` сервисный слой 
+* `internal/service` сервисный слой 
 
-*`internal/app` слой gin, endpoint,mw и др
+* `internal/app` слой gin, endpoint,mw и др
 
-*`internal/lib/logger` логгер 
+* `internal/lib/logger` логгер 
 
-*`internal/pkg/app` инициализцаия
+* `internal/pkg/app` инициализцаия

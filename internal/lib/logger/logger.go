@@ -64,9 +64,9 @@ func (l *Logger) logMessage(level int, msg string, args ...interface{}) {
 		msg,
 	)
 	if len(args) > 0 {
-		log.Printf(formattedMessage+"\u001B[0;35m %s\u001B[0m\n", jsonData)
+		fmt.Printf(formattedMessage+"\u001B[0;35m %s\u001B[0m\n", jsonData)
 	} else {
-		log.Println(formattedMessage + "\u001B[0m")
+		fmt.Println(formattedMessage + "\u001B[0m")
 	}
 }
 
