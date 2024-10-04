@@ -1,0 +1,79 @@
+definitions:
+  endpoint.MessageError:
+    properties:
+      message:
+        type: string
+    type: object
+  endpoint.Song:
+    properties:
+      created_at:
+        example: "2024-09-30T22:23:29.601031Z"
+        type: string
+      group_name:
+        example: Muse
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        format: uuid
+        type: string
+      link:
+        example: https://www.youtube.com/watch?v=Xsp3_a-PMTw
+        type: string
+      release_date:
+        example: "1987-07-03T00:00:00Z"
+        type: string
+      song_name:
+        example: Supermassive Black Hole
+        type: string
+      text:
+        example: string
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /songs:
+    get:
+      consumes:
+      - application/json
+      description: fetching song list
+      parameters:
+      - description: Muse
+        in: query
+        name: group
+        type: string
+      - description: Supermassive Black Hole
+        in: query
+        name: song
+        type: string
+      - description: song text
+        in: query
+        name: text
+        type: string
+      - description: "10"
+        in: query
+        name: limit
+        type: integer
+      - description: "2"
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/endpoint.Song'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "500":
+          description: Internal Server Error
+      summary: list songs
+      tags:
+      - songs
+swagger: "2.0"
