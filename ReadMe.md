@@ -26,3 +26,14 @@ DB_DRIVER=postgres
 MIGRATION_DIRS=./internal/database/migrations
 ```
 
+
+Карта проекта
+`cmd/main.go` точка входа
+`internal/connector/songinfo` запрос к другому api для получения подробной информации о песне
+`internal/database` слой бд для выполнения запросов к базе
+`internal/database/migrator` мигратор бд
+`internal/database/migration` миграции
+`internal/service` сервисный слой 
+`internal/app` слой gin, endpoint,mw и др
+`internal/lib/logger` логгер 
+`internal/pkg/app` инициализцаия
