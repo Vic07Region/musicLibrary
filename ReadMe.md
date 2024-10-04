@@ -27,21 +27,22 @@ MIGRATION_DIRS=./internal/database/migrations
 ```
 
 
-Карта проекта
-`cmd/main.go` точка входа
+Карта проекта:
 
-`internal/connector/songinfo` запрос к другому api для получения подробной информации о песне
+*`cmd/main.go` точка входа
 
-`internal/database` слой бд для выполнения запросов к базе
+*`internal/connector/songinfo` запрос к другому api для получения подробной информации о песне
 
-`internal/database/migrator` мигратор бд
+*`internal/database` слой бд для выполнения запросов к базе
 
-`internal/database/migration` миграции
+*`internal/database/migrator` мигратор бд
 
-`internal/service` сервисный слой 
+*`internal/database/migration` миграции
 
-`internal/app` слой gin, endpoint,mw и др
+*`internal/service` сервисный слой 
 
-`internal/lib/logger` логгер 
+*`internal/app` слой gin, endpoint,mw и др
 
-`internal/pkg/app` инициализцаия
+*`internal/lib/logger` логгер 
+
+*`internal/pkg/app` инициализцаия
