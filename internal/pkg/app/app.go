@@ -2,15 +2,18 @@ package app
 
 import (
 	"fmt"
+	docs "github.com/Vic07Region/musicLibrary/docs"
+	"github.com/Vic07Region/musicLibrary/internal/app/endpoint"
+	"github.com/Vic07Region/musicLibrary/internal/connector/songinfo"
+	"github.com/Vic07Region/musicLibrary/internal/database"
+	"github.com/Vic07Region/musicLibrary/internal/database/migrate"
+	"github.com/Vic07Region/musicLibrary/internal/lib/logger"
+	"github.com/Vic07Region/musicLibrary/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"
-	"musicLibrary/internal/app/endpoint"
-	"musicLibrary/internal/connector/songinfo"
-	"musicLibrary/internal/database"
-	"musicLibrary/internal/database/migrate"
-	"musicLibrary/internal/lib/logger"
-	"musicLibrary/internal/service"
 	"os"
 )
 
@@ -79,7 +82,14 @@ func New() (*App, error) {
 
 	a.gin = gin.Default()
 
-	a.gin.GET("api/songs", a.e.FetchSongsHandler)
+	//swagger
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	eg := a.gin.Group("/api/v1")
+	{
+		eg.GET("/songs", a.e.FetchSongsHandler)
+	}
+	a.gin.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	//a.gin.GET("api/songs", a.e.FetchSongsHandler)
 	return a, nil
 }
 

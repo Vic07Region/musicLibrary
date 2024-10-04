@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/Vic07Region/musicLibrary/internal/pkg/app"
 	"log"
-	"musicLibrary/internal/pkg/app"
 )
 
 func main() {

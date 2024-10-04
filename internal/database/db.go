@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/Vic07Region/musicLibrary/internal/lib/logger"
 	_ "github.com/lib/pq"
-	"musicLibrary/internal/lib/logger"
 )
 
 type DBTX interface {

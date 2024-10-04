@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/Vic07Region/musicLibrary/internal/connector/songinfo"
+	"github.com/Vic07Region/musicLibrary/internal/database"
+	"github.com/Vic07Region/musicLibrary/internal/lib/logger"
 	"github.com/google/uuid"
-	"musicLibrary/internal/connector/songinfo"
-	"musicLibrary/internal/database"
-	"musicLibrary/internal/lib/logger"
 	"strings"
 	"time"
 )
@@ -47,13 +47,13 @@ func New(s MusicLibraryStorage, t SongInfoSerice, log *logger.Logger) *Service {
 }
 
 type Song struct {
-	ID          uuid.UUID `json:"id"`
-	GroupName   string    `json:"group_name"`
-	SongName    string    `json:"song_name"`
-	ReleaseDate time.Time `json:"release_date"`
-	Text        string    `json:"text"`
-	Link        string    `json:"link"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID          uuid.UUID `json:"id" example:"550e8400-e29b-41d4-a716-446655440000" format:"uuid"`
+	GroupName   string    `json:"group_name" example:"Muse"`
+	SongName    string    `json:"song_name" example:"Supermassive Black Hole"`
+	ReleaseDate time.Time `json:"release_date" example:"1987-07-03T00:00:00Z"`
+	Text        string    `json:"text" example:"string"`
+	Link        string    `json:"link" example:"https://www.youtube.com/watch?v=Xsp3_a-PMTw"`
+	CreatedAt   time.Time `json:"created_at" example:"2024-09-30T22:23:29.601031Z"`
 }
 
 type FetchSongsParam struct {

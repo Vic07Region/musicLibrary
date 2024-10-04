@@ -2,9 +2,9 @@ package endpoint
 
 import (
 	"context"
+	"github.com/Vic07Region/musicLibrary/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"musicLibrary/internal/service"
 	"net/http"
 	"strconv"
 )
@@ -27,6 +27,24 @@ func New(s Service) *Endpoint {
 	}
 }
 
+// @BasePath /api/v1
+
+// ListSongs lists all existing songs
+// @Summary list songs
+// @Schemes
+// @Description fetching song list
+// @Param   group      query     string     false  "Muse"
+// @Param   song      query     string     false  "Supermassive Black Hole"
+// @Param   text      query     string     false  "song text"
+// @Param   limit      query     int     false  "10"
+// @Param   offset      query     int     false "2"
+// @Tags songs
+// @Accept json
+// @Produce json
+// @Success 200 {array} endpoint.Song
+// @Failure      400  {object}  endpoint.MessageError
+// @Failure      500
+// @Router /songs [get]
 func (e *Endpoint) FetchSongsHandler(c *gin.Context) {
 	var fetchParams service.FetchSongsParam
 
@@ -57,9 +75,7 @@ func (e *Endpoint) FetchSongsHandler(c *gin.Context) {
 	}
 	songs, err := e.s.FetchSongs(c.Request.Context(), fetchParams)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, MessageError{Message: err.Error()})
 	}
 	c.JSON(http.StatusOK, songs)
 }
