@@ -1,7 +1,7 @@
 # MusicLibrary service
 в рамках тестовой задачи
 
-описание задания лежит в `tz`
+описание задания лежит в `tz` [readme_tz](tz/readme.md) 
 
 # Пример dotenv
 
