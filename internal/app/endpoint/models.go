@@ -18,3 +18,7 @@ type Song struct {
 type MessageError struct {
 	Message string `json:"message"`
 }
+
+type SongText struct {
+	Text []string `json:"text"`
+}

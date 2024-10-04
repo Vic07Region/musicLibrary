@@ -126,6 +126,10 @@ func (s *Service) FetchSongText(ctx context.Context, params FetchSongTextParam) 
 
 	var start, end int64
 
+	if params.Limit <= 0 {
+		params.Limit = 1
+	}
+
 	if int64(len(text_parts))-1 >= params.Offset {
 		start = params.Offset
 	} else {

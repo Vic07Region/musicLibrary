@@ -29,6 +29,13 @@ definitions:
         example: string
         type: string
     type: object
+  endpoint.SongText:
+    properties:
+      text:
+        items:
+          type: string
+        type: array
+    type: object
 info:
   contact: {}
 paths:
@@ -38,23 +45,28 @@ paths:
       - application/json
       description: fetching song list
       parameters:
-      - description: Muse
+      - description: group name
+        example: Muse
         in: query
         name: group
         type: string
-      - description: Supermassive Black Hole
+      - description: song name
+        example: Supermassive Black Hole
         in: query
         name: song
         type: string
       - description: song text
+        example: song text
         in: query
         name: text
         type: string
-      - description: "10"
+      - description: items limit
+        example: 10
         in: query
         name: limit
         type: integer
-      - description: "2"
+      - description: offset items
+        example: 2
         in: query
         name: offset
         type: integer
@@ -76,4 +88,42 @@ paths:
       summary: list songs
       tags:
       - songs
+  /songs/{id}:
+    get:
+      consumes:
+      - application/json
+      description: fetching song text
+      parameters:
+      - description: Идентификатор сущности (UUID)
+        example: 462b63b5-c101-424f-93a2-aa69997036e2
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: items limit
+        example: 10
+        in: query
+        name: limit
+        type: integer
+      - description: offset items
+        example: 2
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/endpoint.SongText'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "500":
+          description: Internal Server Error
+      summary: Song text
+      tags:
+      - songText
 swagger: "2.0"

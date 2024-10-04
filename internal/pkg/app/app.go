@@ -87,6 +87,7 @@ func New() (*App, error) {
 	eg := a.gin.Group("/api/v1")
 	{
 		eg.GET("/songs", a.e.FetchSongsHandler)
+		eg.GET("/songs/:id", a.e.FetchSongTextHandler)
 	}
 	a.gin.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	//a.gin.GET("api/songs", a.e.FetchSongsHandler)

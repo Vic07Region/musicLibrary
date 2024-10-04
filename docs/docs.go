@@ -31,31 +31,36 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Muse",
+                        "example": "Muse",
+                        "description": "group name",
                         "name": "group",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Supermassive Black Hole",
+                        "example": "Supermassive Black Hole",
+                        "description": "song name",
                         "name": "song",
                         "in": "query"
                     },
                     {
                         "type": "string",
+                        "example": "song text",
                         "description": "song text",
                         "name": "text",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "10",
+                        "example": 10,
+                        "description": "items limit",
                         "name": "limit",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "2",
+                        "example": 2,
+                        "description": "offset items",
                         "name": "offset",
                         "in": "query"
                     }
@@ -68,6 +73,62 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/endpoint.Song"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/endpoint.MessageError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/songs/{id}": {
+            "get": {
+                "description": "fetching song text",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "songText"
+                ],
+                "summary": "Song text",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "462b63b5-c101-424f-93a2-aa69997036e2",
+                        "description": "Идентификатор сущности (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "example": 10,
+                        "description": "items limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 2,
+                        "description": "offset items",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/endpoint.SongText"
                         }
                     },
                     "400": {
@@ -123,6 +184,17 @@ const docTemplate = `{
                 "text": {
                     "type": "string",
                     "example": "string"
+                }
+            }
+        },
+        "endpoint.SongText": {
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         }
