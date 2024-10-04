@@ -18,7 +18,8 @@
 ```
 
 2. При добавлении сделать запрос в АПИ, описанного сваггером
-[swagger_api](api_tz_serv.yaml)
+[swagger_api](api_tz_serv.yaml) 
+[swagger_api_online](https://editor.swagger.io/?url=https://raw.githubusercontent.com/Vic07Region/musicLibrary/refs/heads/master/tz/api_tz_serv.yaml) 
 
 3. Обогащенную информацию положить в БД postgres (структура БД должна быть создана путем миграций при старте сервиса)
 4. Покрыть код debug- и info-логами
