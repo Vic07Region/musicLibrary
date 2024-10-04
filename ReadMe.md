@@ -1,12 +1,12 @@
-#MusicLibrary service
+# MusicLibrary service
 в рамках тестовой задачи
 
 описание задания лежит в `tz`
 
-#Пример dotenv
+# Пример dotenv
 
-`.env` - для продакшен
-`.env.local` - для локальной разработки
+* `.env` - для продакшен
+* `.env.local` - для локальной разработки
 
 ```dotenv
 #APP HOST PARAM
@@ -31,7 +31,7 @@ MIGRATION_DIRS=./internal/database/migrations
 ```
 
 
-Карта проекта:
+# Карта проекта:
 
 * `cmd/main.go` точка входа
 
