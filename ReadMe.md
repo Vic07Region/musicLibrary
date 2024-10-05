@@ -63,3 +63,5 @@ MIGRATION_DIRS=./internal/database/migrations
 * `internal/lib/logger` логгер 
 
 * `internal/pkg/app` инициализцаия
+
+* `docs` сгенерированные сваггером документы
