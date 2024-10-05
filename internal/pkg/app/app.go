@@ -142,6 +142,5 @@ func newCS(user, password, dbName string, options ...map[string]string) string {
 
 	connectionString := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=%s %s",
 		user, password, host, port, dbName, sslmode, sslrootcert)
-	log.Println(connectionString)
 	return connectionString
 }
