@@ -42,6 +42,6 @@ help:
 	@echo "  build          Собирает проект"
 	@echo "  run           Запускает проект"
 	@echo "  clean          Очищает сгенерированные файлы"
-	@echo "  swag-docs      Генерирует документацию swag"
+	@echo "  swag-docs      Генерирует документацию swagger"
 
 .default: help
