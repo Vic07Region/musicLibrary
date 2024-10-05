@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
@@ -36,6 +37,7 @@ func (q *Queries) GetSong(ctx context.Context, song_id uuid.UUID) (*Song, error)
 		&song.CreatedAt,
 		&song.UpdatedAt,
 	); err != nil {
+		q.log.Debug("database.GetSong scan", "error", err.Error())
 		return nil, err
 	}
 
@@ -79,6 +81,7 @@ func (q *Queries) GetSongs(ctx context.Context, params GetSongsParam) ([]Song, e
 
 	rows, err := sql_query.RunWith(q.db).QueryContext(ctx)
 	if err != nil {
+		q.log.Debug("database.GetSongs query", "error", err.Error())
 		return nil, err
 	}
 	defer rows.Close()
@@ -97,14 +100,17 @@ func (q *Queries) GetSongs(ctx context.Context, params GetSongsParam) ([]Song, e
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
+			q.log.Debug("database.GetSongs scan", "error", err.Error())
 			return nil, err
 		}
 		songs = append(songs, i)
 	}
 	if err := rows.Close(); err != nil {
+		q.log.Debug("database.GetSongs rows.Close", "error", err.Error())
 		return nil, err
 	}
 	if err := rows.Err(); err != nil {
+		q.log.Debug("database.GetSongs rows.err", "error", err.Error())
 		return nil, err
 	}
 	return songs, nil
@@ -118,7 +124,7 @@ type GetSongTextParam struct {
 
 func (q *Queries) GetSongText(ctx context.Context, song_id uuid.UUID) (string, error) {
 	sql_query := squirrel.Select("text").From("songs").
-		Where(squirrel.Eq{"id": song_id.String()})
+		Where(squirrel.Eq{"id": song_id.String()}).Limit(1)
 
 	sql_query = sql_query.PlaceholderFormat(squirrel.Dollar)
 
@@ -127,7 +133,8 @@ func (q *Queries) GetSongText(ctx context.Context, song_id uuid.UUID) (string, e
 	var song_text string
 
 	if err := row.Scan(&song_text); err != nil {
-		return "", nil
+		q.log.Debug("database.GetSongText scan", "error", err.Error())
+		return "", err
 	}
 	return song_text, nil
 }
@@ -137,8 +144,21 @@ func (q *Queries) DeleteSong(ctx context.Context, id uuid.UUID) error {
 
 	sql_query = sql_query.PlaceholderFormat(squirrel.Dollar)
 
-	_, err := sql_query.RunWith(q.db).ExecContext(ctx)
+	result, err := sql_query.RunWith(q.db).ExecContext(ctx)
+	if err != nil {
+		q.log.Debug("database.DeleteSong Exec", "error", err.Error())
+		return err
+	}
 
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		q.log.Debug("database.DeleteSong RowsAffected", "error", err.Error())
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
 	return err
 }
 
@@ -213,6 +233,7 @@ func (q *Queries) CreateSong(ctx context.Context, params CreateSongParam) (*Crea
 	var song CreateSongResult
 
 	if err := row.Scan(&song.ID, &song.GroupName, &song.SongName, &song.CreatedAt); err != nil {
+		q.log.Debug("database.CreateSong Scan", "error", err.Error())
 		return nil, err
 	}
 

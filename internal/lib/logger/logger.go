@@ -21,14 +21,18 @@ var levelColors = map[int]string{
 }
 
 type Logger struct {
+	debug bool
 }
 
-func New() *Logger {
-	return &Logger{}
+func New(debug bool) *Logger {
+	return &Logger{debug: debug}
 }
 
 func (l *Logger) Debug(msg string, args ...interface{}) {
-	l.logMessage(DebugLevel, msg, args...)
+	log.Println("debug logger", l.debug)
+	if true == l.debug {
+		l.logMessage(DebugLevel, msg, args...)
+	}
 }
 
 func (l *Logger) Info(msg string, args ...interface{}) {
@@ -54,10 +58,10 @@ func (l *Logger) logMessage(level int, msg string, args ...interface{}) {
 	}
 
 	jsonData, _ := json.MarshalIndent(data, " ", "  ")
-	timestamp := time.Now().UTC().Format("2006-01-02T15:04:05.000Z")
+	timestamp := time.Now().UTC().Format("2006-01-02 15:04:05.000")
 
 	formattedMessage := fmt.Sprintf(
-		"%s %s %s %s",
+		"%s %s [%s] %s",
 		timestamp,
 		levelColors[level],
 		l.levelToString(level),

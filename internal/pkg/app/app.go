@@ -31,7 +31,6 @@ type App struct {
 
 func New() (*App, error) {
 	a := &App{}
-	a.l = logger.New()
 
 	err := godotenv.Load(".env.local")
 	if err != nil {
@@ -40,7 +39,15 @@ func New() (*App, error) {
 			log.Fatal("Error loading .env file")
 		}
 	}
+
 	//init config
+	debug_param := os.Getenv("DEBUG")
+	var debug bool
+	if debug_param == "TRUE" || debug_param == "true" || debug_param == "True" {
+		debug = true
+	}
+	a.l = logger.New(debug)
+	a.l.Info("DEBUG LEVEL", debug)
 	dbdriver := os.Getenv("DB_DRIVER")
 	migrationsDIRS := os.Getenv("MIGRATION_DIRS")
 	api_baseurl := os.Getenv("API_BASEURL")
@@ -52,7 +59,6 @@ func New() (*App, error) {
 	cs_option["port"] = os.Getenv("DB_PORT")
 	cs_option["sslmode"] = os.Getenv("DB_SSLMODE")
 	cs_option["sslrootcert"] = os.Getenv("DB_ROOTSERT")
-	a.l.Debug("cs_option", cs_option)
 	cs := newCS(
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
@@ -74,23 +80,25 @@ func New() (*App, error) {
 	//init db queries storage
 	a.dbq = database.NewStorage(db, a.l)
 	//init third api service
-	song_info_service := songinfo.New(api_baseurl)
+	song_info_service := songinfo.New(api_baseurl, a.l)
 	//init service layer
 	a.s = service.New(a.dbq, song_info_service, a.l)
 	//init endpoint
-	a.e = endpoint.New(a.s)
+	a.e = endpoint.New(a.s, a.l)
 
 	a.gin = gin.Default()
-
 	//swagger
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	eg := a.gin.Group("/api/v1")
 	{
 		eg.GET("/songs", a.e.FetchSongsHandler)
 		eg.GET("/songs/:id", a.e.FetchSongTextHandler)
+		eg.DELETE("/songs/:id", a.e.DeleteSongHandler)
+		eg.PATCH("/songs/:id", a.e.UpdateSongHandler)
+		eg.POST("/songs/new", a.e.NewSongHandler)
 	}
+	a.gin.GET("/info", a.e.TestHandler)
 	a.gin.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	//a.gin.GET("api/songs", a.e.FetchSongsHandler)
 	return a, nil
 }
 

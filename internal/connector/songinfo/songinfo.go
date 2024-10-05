@@ -3,8 +3,8 @@ package songinfo
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Vic07Region/musicLibrary/internal/lib/logger"
 	"net/http"
-	"path"
 )
 
 var (
@@ -17,11 +17,12 @@ var (
 )
 
 type SongStorage struct {
-	base_url string
+	baseUrl string
+	log     *logger.Logger
 }
 
-func New(base_url string) *SongStorage {
-	return &SongStorage{base_url: base_url}
+func New(baseUrl string, log *logger.Logger) *SongStorage {
+	return &SongStorage{baseUrl: baseUrl, log: log}
 }
 
 type SongInfo struct {
@@ -44,18 +45,27 @@ func (s *SongStorage) FetchSongInfo(params FetchSongInfoParam) (*SongInfo, error
 		return nil, SongNameRequiredError
 	}
 
-	resp, err := http.Get(path.Join(s.base_url, "/info"))
+	url := s.baseUrl + "/info"
+
+	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Println("Ошибка при выполнении запроса:", err)
-		return nil, err
+		s.log.Debug(fmt.Sprintf("songinfo.FetchSongInfo http.Get(%s)", url),
+			"error", err.Error(),
+		)
+		return nil, ServiceInternalError
 	}
+
 	defer resp.Body.Close()
+
 	var song SongInfo
 
 	switch resp.StatusCode {
 	case http.StatusOK:
 		if err := json.NewDecoder(resp.Body).Decode(&song); err != nil {
-			fmt.Println("Ошибка при декодировании ответа:", err)
+			s.log.Debug(
+				"songinfo.FetchSongInfo - Song info service Decode body",
+				"error", err.Error(),
+			)
 			return nil, SerializeError
 		}
 	case http.StatusBadRequest:
@@ -63,6 +73,10 @@ func (s *SongStorage) FetchSongInfo(params FetchSongInfoParam) (*SongInfo, error
 	case http.StatusInternalServerError:
 		return nil, ServiceInternalError
 	default:
+		s.log.Debug(
+			"songinfo.FetchSongInfo response",
+			"error", err.Error(),
+		)
 		return nil, ServiceUnknowError
 	}
 

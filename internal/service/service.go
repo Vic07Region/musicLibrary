@@ -76,13 +76,13 @@ func (s *Service) FetchSongs(ctx context.Context, params FetchSongsParam) ([]Son
 	if err != nil {
 		switch err {
 		case context.DeadlineExceeded:
-			s.log.Debug("GetSongs: GetSongs", "error", err.Error())
+			s.log.Warn("GetSongs: GetSongs", "error", err.Error())
 			return nil, TimeOutError
 		case sql.ErrNoRows:
-			s.log.Debug("GetSongs: GetSongs", "error", err.Error())
+			s.log.Warn("GetSongs: GetSongs", "error", err.Error())
 			return nil, NoSongsError
 		default:
-			s.log.Debug("GetSongs: GetSongs", "error", err.Error())
+			s.log.Warn("GetSongs: GetSongs", "error", err.Error())
 			return nil, RequestError
 		}
 
@@ -114,11 +114,11 @@ func (s *Service) FetchSongText(ctx context.Context, params FetchSongTextParam) 
 
 	song_text, err := s.storage.GetSongText(ctx, params.Song_id)
 	if err != nil {
-		s.log.Debug("FetchSongText - GetSongText", "Error", err.Error())
+		s.log.Warn("FetchSongText - GetSongText", "Error", err.Error())
 		if err == sql.ErrNoRows {
 			return nil, SongNotFoundError
 		}
-		s.log.Debug("FetchSongText: GetSongText", "error", err.Error())
+		s.log.Warn("FetchSongText: GetSongText", "error", err.Error())
 		return nil, RequestError
 	}
 
@@ -150,13 +150,13 @@ func (s *Service) DeleteSong(ctx context.Context, song_id uuid.UUID) error {
 	if err != nil {
 		switch err {
 		case context.DeadlineExceeded:
-			s.log.Debug("DeleteSong:", "error", err.Error())
+			s.log.Warn("DeleteSong:", "error", err.Error())
 			return TimeOutError
 		case sql.ErrNoRows:
-			s.log.Debug("DeleteSong:", "error", err.Error())
+			s.log.Warn("DeleteSong:", "error", err.Error())
 			return SongNotFoundError
 		default:
-			s.log.Debug("DeleteSong:", "error", err.Error())
+			s.log.Warn("DeleteSong:", "error", err.Error())
 			return RequestError
 		}
 	}
@@ -175,7 +175,7 @@ type EditSongParam struct {
 func (s *Service) EditSong(ctx context.Context, params EditSongParam) (*Song, error) {
 	old_song, err := s.storage.GetSong(ctx, params.Song_id)
 	if err != nil {
-		s.log.Debug("EditSong - GetSong", "Error", err.Error())
+		s.log.Warn("EditSong - GetSong", "Error", err.Error())
 		if err == sql.ErrNoRows {
 			return nil, SongNotFoundError
 		}
@@ -222,13 +222,13 @@ func (s *Service) EditSong(ctx context.Context, params EditSongParam) (*Song, er
 	if err != nil {
 		switch err {
 		case context.DeadlineExceeded:
-			s.log.Debug("EditSong: UpdateSong", "error", err.Error())
+			s.log.Warn("EditSong: UpdateSong", "error", err.Error())
 			return nil, TimeOutError
 		case sql.ErrNoRows:
-			s.log.Debug("EditSong: UpdateSong", "error", err.Error())
+			s.log.Warn("EditSong: UpdateSong", "error", err.Error())
 			return nil, SongNotFoundError
 		default:
-			s.log.Debug("EditSong: UpdateSong", "error", err.Error())
+			s.log.Warn("EditSong: UpdateSong", "error", err.Error())
 			return nil, RequestError
 		}
 	}
@@ -247,13 +247,13 @@ func (s *Service) NewSong(ctx context.Context, params NewSongParam) (*Song, erro
 		SongName:  params.SongName,
 	})
 	if err != nil {
-		s.log.Debug("NewSong - FetchSongInfo service", "Error", err.Error())
+		s.log.Warn("NewSong - FetchSongInfo service", "Error", err.Error())
 		return nil, err
 	}
 
 	release_date, err := time.Parse("02.01.2006", song_info.ReleaseDate)
 	if err != nil {
-		s.log.Debug("NewSong - parse release date", "Error", err.Error())
+		s.log.Warn("NewSong - parse release date", "Error", err.Error())
 		return nil, BadDataFormatError
 	}
 	newSong, err := s.storage.CreateSong(ctx, database.CreateSongParam{
@@ -266,10 +266,10 @@ func (s *Service) NewSong(ctx context.Context, params NewSongParam) (*Song, erro
 	if err != nil {
 		switch err {
 		case context.DeadlineExceeded:
-			s.log.Debug("NewSong: CreateSong", "error", err.Error())
+			s.log.Warn("NewSong: CreateSong", "error", err.Error())
 			return nil, TimeOutError
 		default:
-			s.log.Debug("NewSong: CreateSong", "error", err.Error())
+			s.log.Warn("NewSong: CreateSong", "error", err.Error())
 			return nil, RequestError
 		}
 	}

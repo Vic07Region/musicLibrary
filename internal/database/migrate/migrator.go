@@ -2,7 +2,6 @@ package migrate
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/pressly/goose/v3"
 )
 
@@ -18,7 +17,6 @@ func ApplyMigrations(db *sql.DB, migrationsDir string, dbdriver string) error {
 	}
 	// Проходим по всем файлам миграций
 	if err := goose.Up(db, migrationsDir); err != nil {
-		fmt.Println(err, "goose up")
 		return err
 	}
 

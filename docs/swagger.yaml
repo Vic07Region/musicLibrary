@@ -4,6 +4,13 @@ definitions:
       message:
         type: string
     type: object
+  endpoint.NewSong:
+    properties:
+      group:
+        type: string
+      song:
+        type: string
+    type: object
   endpoint.Song:
     properties:
       created_at:
@@ -35,6 +42,19 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  endpoint.UpdateSong:
+    properties:
+      group:
+        type: string
+      link:
+        type: string
+      releaseDate:
+        type: string
+      song:
+        type: string
+      text:
+        type: string
     type: object
 info:
   contact: {}
@@ -85,10 +105,39 @@ paths:
             $ref: '#/definitions/endpoint.MessageError'
         "500":
           description: Internal Server Error
-      summary: list songs
+      summary: List songs
       tags:
-      - songs
+      - Songs
   /songs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: deleting song
+      parameters:
+      - description: Идентификатор сущности (UUID)
+        example: 462b63b5-c101-424f-93a2-aa69997036e2
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "500":
+          description: Internal Server Error
+      summary: Delete Song
+      tags:
+      - Songs
     get:
       consumes:
       - application/json
@@ -121,9 +170,78 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/endpoint.MessageError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
         "500":
           description: Internal Server Error
       summary: Song text
       tags:
-      - songText
+      - Songs
+    patch:
+      consumes:
+      - application/json
+      description: edit song
+      parameters:
+      - description: Идентификатор сущности (UUID)
+        example: 462b63b5-c101-424f-93a2-aa69997036e2
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/endpoint.UpdateSong'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/endpoint.Song'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "500":
+          description: Internal Server Error
+      summary: Edit Song
+      tags:
+      - Songs
+  /songs/new:
+    post:
+      consumes:
+      - application/json
+      description: create new song
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/endpoint.NewSong'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/endpoint.Song'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "500":
+          description: Internal Server Error
+      summary: New song
+      tags:
+      - Songs
 swagger: "2.0"
