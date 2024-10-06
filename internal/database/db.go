@@ -1,27 +1,29 @@
 package database
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"github.com/Vic07Region/musicLibrary/internal/lib/logger"
 	_ "github.com/lib/pq"
+	"time"
 )
 
-type DBTX interface {
-	ExecContext(context.Context, string, ...interface{}) (sql.Result, error)
-	PrepareContext(context.Context, string) (*sql.Stmt, error)
-	QueryContext(context.Context, string, ...interface{}) (*sql.Rows, error)
-	QueryRowContext(context.Context, string, ...interface{}) *sql.Row
-	BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error)
+type ConnectionParams struct {
+	DbDriver         string
+	ConnectionString string
+	MaxOpenConns     int
+	MsxIdleConns     int
+	MaxLifeTime      time.Duration
 }
 
-func NewConnection(dbdriver, connection string) (*sql.DB, error) {
-	dbo, err := sql.Open(dbdriver, connection)
+func NewConnection(params ConnectionParams) (*sql.DB, error) {
+	dbo, err := sql.Open(params.DbDriver, params.ConnectionString)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %v", err)
 	}
-
+	dbo.SetMaxOpenConns(params.MaxOpenConns)
+	dbo.SetMaxIdleConns(params.MsxIdleConns)
+	dbo.SetConnMaxLifetime(params.MaxLifeTime)
 	// Проверьте соединение
 	if err = dbo.Ping(); err != nil {
 		dbo.Close()

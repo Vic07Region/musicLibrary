@@ -15,6 +15,8 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"log"
 	"os"
+	"strconv"
+	"time"
 )
 
 const (
@@ -51,6 +53,41 @@ func New() (*App, error) {
 	dbdriver := os.Getenv("DB_DRIVER")
 	migrationsDIRS := os.Getenv("MIGRATION_DIRS")
 	api_baseurl := os.Getenv("API_BASEURL")
+
+	max_conn_env := os.Getenv("DB_MAX_CONN")
+	mac_idle_env := os.Getenv("DB_MAX_IDLE")
+	max_lifetime_env := os.Getenv("DB_MAX_LIFETIME")
+
+	var max_con, max_idle int
+	var max_lifetime time.Duration
+	if max_conn_env != "" {
+		max_con, err = strconv.Atoi(max_conn_env)
+		if err != nil {
+			return nil, fmt.Errorf("Max conn param wrong")
+		}
+	} else {
+		max_con = 25
+	}
+
+	if mac_idle_env != "" {
+		max_idle, err = strconv.Atoi(mac_idle_env)
+		if err != nil {
+			return nil, fmt.Errorf("Max idle param wrong")
+		}
+	} else {
+		max_idle = 5
+	}
+
+	if max_lifetime_env != "" {
+		tm, err := strconv.Atoi(mac_idle_env)
+		if err != nil {
+			return nil, fmt.Errorf("Max lifetime param wrong")
+		}
+		max_lifetime = time.Duration(tm) * time.Minute
+	} else {
+		max_lifetime = 5 * time.Minute
+	}
+
 	if dbdriver == "" {
 		dbdriver = POSTGRES
 	}
@@ -68,10 +105,17 @@ func New() (*App, error) {
 
 	//init layers
 	//database connection
-	db, err := database.NewConnection(dbdriver, cs)
+	db, err := database.NewConnection(database.ConnectionParams{
+		DbDriver:         dbdriver,
+		ConnectionString: cs,
+		MaxOpenConns:     max_con,
+		MsxIdleConns:     max_idle,
+		MaxLifeTime:      max_lifetime,
+	})
 	if err != nil {
 		return nil, err
 	}
+
 	//migrator
 	err = migrate.ApplyMigrations(db, migrationsDIRS, dbdriver)
 	if err != nil {
