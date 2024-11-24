@@ -12,10 +12,12 @@
 #APP HOST PARAM
 APP_HOST=:8080
 
-#THIRD API SERVICE BASE URL
-API_BASEURL=https://example.com/api
+DEBUG=TRUE
+PRODUCTION=TRUE
 
-#DEBUG=TRUE
+#THIRD API SERVICE BASE URL
+API_BASEURL=http://example.com/api
+
 
 #database env param
 DB_USER=postgres
@@ -26,8 +28,13 @@ DB_NAME=dbname
 #DB_SSLMODE=disable
 #DB_ROOTSERT=./path/to/root/cert
 
+DB_MAX_CONN=80
+DB_MAX_IDLE=5
+DB_MAX_LIFETIME=10
+#minute
+
 DB_DRIVER=postgres
-MIGRATION_DIRS=./internal/database/migrations
+MIGRATION_DIRS=./migrations
 
 ## закомоентированные поля не обязательны к заполнению
 ```
