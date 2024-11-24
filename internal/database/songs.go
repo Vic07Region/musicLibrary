@@ -5,8 +5,13 @@ import (
 	"database/sql"
 	"fmt"
 	sq "github.com/Masterminds/squirrel"
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 	"time"
+)
+
+var (
+	DuplicateKeyError = fmt.Errorf("duplicate key value violates uniqueness constraint")
 )
 
 type Storage interface {
@@ -270,6 +275,11 @@ func (q *Queries) AddSong(ctx context.Context, request AddSongRequest) (*AddSong
 	if err != nil {
 		if q.debug {
 			q.log.Error("database.AddSong | insertSong.QueryRowContext", "error", err.Error())
+		}
+		if pgErr, ok := err.(*pq.Error); ok {
+			if pgErr.Code == "23505" {
+				return nil, DuplicateKeyError
+			}
 		}
 		return nil, err
 	}

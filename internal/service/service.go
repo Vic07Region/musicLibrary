@@ -16,6 +16,7 @@ var (
 	SongNotFoundError    = fmt.Errorf("Song is not found")
 	GroupNotFoundError   = fmt.Errorf("Group is not found")
 	NoSongsError         = fmt.Errorf("There are no songs that meet the request")
+	SongExistError       = fmt.Errorf("A song with this group and name already exists")
 	BadRequestError      = fmt.Errorf("Bad reqiest")
 	UnknowError          = fmt.Errorf("Unknow error")
 	BadDataFormatError   = fmt.Errorf("Wrong release date format")
@@ -108,7 +109,6 @@ func (s *Service) FetchSongs(ctx context.Context, request FetchSongsRequest) (*F
 	}
 
 	if s.debug {
-		s.log.Info("service.FetchSongs | request data", "request", request)
 		s.log.Info("service.FetchSongs | response data", "songs", songs, "totalCount", totalCount)
 	}
 
@@ -130,6 +130,10 @@ type FetchVersesResponse struct {
 }
 
 func (s *Service) FetchVerses(ctx context.Context, request FetchVersesRequest) (*FetchVersesResponse, error) {
+	if s.debug {
+		s.log.Info("service.FetchVerses | request data", "request", request)
+	}
+
 	verses, err := s.storage.GetVerses(ctx, database.GetVersesRequest{
 		SongID: request.SongID,
 		Limit:  request.Limit,
@@ -165,7 +169,6 @@ func (s *Service) FetchVerses(ctx context.Context, request FetchVersesRequest) (
 	}
 
 	if s.debug {
-		s.log.Info("service.FetchVerses | request data", "request", request)
 		s.log.Info("service.FetchVerses | response data", "songs", vs, "totalCount", songVersesCount)
 	}
 
@@ -184,6 +187,10 @@ type DeleteSongResponse struct {
 }
 
 func (s *Service) DeleteSong(ctx context.Context, request DeleteSongRequest) (*DeleteSongResponse, error) {
+	if s.debug {
+		s.log.Info("service.DeleteSong | request data", "request", request)
+	}
+
 	var reponse DeleteSongResponse
 
 	err := s.storage.DeleteSong(ctx, request.SongID)
@@ -203,7 +210,6 @@ func (s *Service) DeleteSong(ctx context.Context, request DeleteSongRequest) (*D
 	reponse.Success = true
 
 	if s.debug {
-		s.log.Info("service.DeleteSong | request data", "request", request)
 		s.log.Info("service.DeleteSong | response data", "success", reponse.Success)
 	}
 
@@ -223,6 +229,9 @@ type UpdateSongResponse struct {
 }
 
 func (s *Service) UpdateSong(ctx context.Context, request UpdateSongRequest) (UpdateSongResponse, error) {
+	if s.debug {
+		s.log.Info("service.UpdateSong | request data", "request", request)
+	}
 	var result UpdateSongResponse
 	songParam := database.UpdateSongRequest{
 		SongID:      request.SongID,
@@ -262,7 +271,6 @@ func (s *Service) UpdateSong(ctx context.Context, request UpdateSongRequest) (Up
 	result.Success = true
 
 	if s.debug {
-		s.log.Info("service.UpdateSong | request data", "request", request)
 		s.log.Info("service.UpdateSong | response data", "success", result.Success)
 	}
 
@@ -280,6 +288,9 @@ type UpdateVerseResponse struct {
 }
 
 func (s *Service) UpdateVerse(ctx context.Context, request UpdateVerseRequest) (UpdateVerseResponse, error) {
+	if s.debug {
+		s.log.Info("service.UpdateVerse | request data", "request", request)
+	}
 	var result UpdateVerseResponse
 	err := s.storage.UpdateVerse(ctx, database.UpdateVerseRequest{
 		SongID:      request.SongID,
@@ -301,7 +312,6 @@ func (s *Service) UpdateVerse(ctx context.Context, request UpdateVerseRequest) (
 	result.Success = true
 
 	if s.debug {
-		s.log.Info("service.UpdateVerse | request data", "request", request)
 		s.log.Info("service.UpdateVerse | response data", "success", result.Success)
 	}
 
@@ -314,6 +324,10 @@ type NewSongRequest struct {
 }
 
 func (s *Service) NewSong(ctx context.Context, request NewSongRequest) (*Song, error) {
+	if s.debug {
+		s.log.Info("service.NewSong | request data", "request", request)
+	}
+
 	songInfo, err := s.songSrv.FetchSongInfo(songinfo.FetchSongInfoParam{
 		GroupName: request.GroupName,
 		SongName:  request.SongName,
@@ -328,14 +342,20 @@ func (s *Service) NewSong(ctx context.Context, request NewSongRequest) (*Song, e
 		s.log.Warn("service.NewSong | parse release date", "Error", err.Error())
 		return nil, BadDataFormatError
 	}
-
-	verseSplit := strings.Split(songInfo.Text, "\n\n")
+	fullText := strings.ReplaceAll(songInfo.Text, "\\n", "\n")
+	verseSplit := strings.Split(fullText, "\n\n")
 
 	var verses []database.VerseSmall
 
 	for idx, verse := range verseSplit {
+		if s.debug {
+			s.log.Info("service.NewSong | Verse info",
+				"verseIDX", idx,
+				"verseText", verse)
+		}
+
 		verses = append(verses, database.VerseSmall{
-			VerseNumber: idx,
+			VerseNumber: idx + 1,
 			VerseText:   verse,
 		})
 	}
@@ -352,6 +372,8 @@ func (s *Service) NewSong(ctx context.Context, request NewSongRequest) (*Song, e
 		switch err {
 		case context.DeadlineExceeded:
 			return nil, TimeOutError
+		case database.DuplicateKeyError:
+			return nil, SongExistError
 		default:
 			return nil, RequestError
 		}
@@ -367,7 +389,6 @@ func (s *Service) NewSong(ctx context.Context, request NewSongRequest) (*Song, e
 	}
 
 	if s.debug {
-		s.log.Info("service.NewSong | request data", "request", request)
 		s.log.Info("service.NewSong | response data", "song", song)
 	}
 
