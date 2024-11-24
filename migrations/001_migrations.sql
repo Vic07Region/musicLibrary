@@ -28,10 +28,12 @@ CREATE TABLE verses (
 );
 
 -- Indexes
-CREATE INDEX idx_songs_group_id ON Songs(group_id);
-CREATE INDEX idx_songs_song ON Songs(song);
-CREATE INDEX idx_songs_releaseDate ON Songs(releaseDate);
-CREATE INDEX idx_verses_song_id ON Verses(song_id);
+CREATE INDEX idx_groups_name ON groups(name);
+CREATE INDEX idx_songs_group_id ON songs(group_id);
+CREATE INDEX idx_songs_song ON songs(song);
+CREATE INDEX idx_songs_releaseDate ON songs(releaseDate);
+CREATE INDEX idx_verses_song_id ON verses(song_id);
+CREATE INDEX idx_verses_text ON verses(verse_text);
 -- +goose StatementEnd
 
 -- +goose Down

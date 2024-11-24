@@ -13,16 +13,16 @@ import (
 )
 
 var (
-	SongNotFoundError    = fmt.Errorf("Song is not found")
-	GroupNotFoundError   = fmt.Errorf("Group is not found")
-	NoSongsError         = fmt.Errorf("There are no songs that meet the request")
-	SongExistError       = fmt.Errorf("A song with this group and name already exists")
-	BadRequestError      = fmt.Errorf("Bad reqiest")
-	UnknowError          = fmt.Errorf("Unknow error")
-	BadDataFormatError   = fmt.Errorf("Wrong release date format")
-	SongInfoserviceError = fmt.Errorf("Song info service InternalServerError")
-	RequestError         = fmt.Errorf("Request execution error")
-	TimeOutError         = fmt.Errorf("Request timeout exceeded")
+	SongNotFoundError  = fmt.Errorf("song is not found")
+	GroupNotFoundError = fmt.Errorf("group is not found")
+	NoSongsError       = fmt.Errorf("there are no songs that meet the request")
+	SongExistError     = fmt.Errorf("A song with this group and name already exists")
+	// BadDataFormatError BadRequestError      = fmt.Errorf("bad reqiest")
+	//UnknowError          = fmt.Errorf("unknow error")
+	BadDataFormatError = fmt.Errorf("wrong release date format")
+	// RequestError SongInfoserviceError = fmt.Errorf("song info service InternalServerError")
+	RequestError = fmt.Errorf("request execution error")
+	TimeOutError = fmt.Errorf("request timeout exceeded")
 )
 
 type MusicService interface {
@@ -36,12 +36,12 @@ type MusicService interface {
 
 type Service struct {
 	storage database.Storage
-	songSrv songinfo.SongInfoSerice
+	songSrv songinfo.InfoSerice
 	log     *logger.Logger
 	debug   bool
 }
 
-func New(s database.Storage, t songinfo.SongInfoSerice, log *logger.Logger, debug bool) *Service {
+func New(s database.Storage, t songinfo.InfoSerice, log *logger.Logger, debug bool) *Service {
 	return &Service{storage: s, songSrv: t, log: log, debug: debug}
 }
 
@@ -337,7 +337,7 @@ func (s *Service) NewSong(ctx context.Context, request NewSongRequest) (*Song, e
 		return nil, err
 	}
 
-	release_date, err := time.Parse("02.01.2006", songInfo.ReleaseDate)
+	releaseDate, err := time.Parse("02.01.2006", songInfo.ReleaseDate)
 	if err != nil {
 		s.log.Warn("service.NewSong | parse release date", "Error", err.Error())
 		return nil, BadDataFormatError
@@ -363,16 +363,16 @@ func (s *Service) NewSong(ctx context.Context, request NewSongRequest) (*Song, e
 	newSong, err := s.storage.AddSong(ctx, database.AddSongRequest{
 		GroupName:   request.GroupName,
 		SongName:    request.SongName,
-		ReleaseDate: release_date,
+		ReleaseDate: releaseDate,
 		Verses:      verses,
 		Link:        songInfo.Link,
 	})
 	if err != nil {
 		s.log.Error("service.NewSong | CreateSong", "error", err.Error())
-		switch err {
-		case context.DeadlineExceeded:
+		switch {
+		case errors.Is(err, context.DeadlineExceeded):
 			return nil, TimeOutError
-		case database.DuplicateKeyError:
+		case errors.Is(err, database.DuplicateKeyError):
 			return nil, SongExistError
 		default:
 			return nil, RequestError
@@ -384,7 +384,7 @@ func (s *Service) NewSong(ctx context.Context, request NewSongRequest) (*Song, e
 		ID:          int(newSong.SongID),
 		GroupName:   request.GroupName,
 		SongName:    request.SongName,
-		ReleaseDate: release_date,
+		ReleaseDate: releaseDate,
 		Link:        songInfo.Link,
 	}
 

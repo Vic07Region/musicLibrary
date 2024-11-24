@@ -5,6 +5,7 @@ LOCAL_BIN:=$(CURDIR)/bin
 # установка зависимостей
 install-deps:
 	GOBIN=$(LOCAL_BIN) go install github.com/swaggo/swag/cmd/swag@latest
+	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 # получение зависимостей
 get-deps:

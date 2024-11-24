@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/lib/pq"
@@ -256,7 +257,7 @@ func (q *Queries) AddSong(ctx context.Context, request AddSongRequest) (*AddSong
 
 	err = insertGroup.RunWith(tx).QueryRowContext(ctxWithTimeout).Scan(&groupID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			err = psql.Select("group_id").From("groups").
 				Where(sq.Eq{"name": request.GroupName}).RunWith(tx).QueryRowContext(ctx).Scan(&groupID)
 			if err != nil {
@@ -282,7 +283,8 @@ func (q *Queries) AddSong(ctx context.Context, request AddSongRequest) (*AddSong
 		if q.debug {
 			q.log.Error("database.AddSong | insertSong.QueryRowContext", "error", err.Error())
 		}
-		if pgErr, ok := err.(*pq.Error); ok {
+		var pgErr *pq.Error
+		if errors.As(err, &pgErr) {
 			if pgErr.Code == "23505" {
 				return nil, DuplicateKeyError
 			}

@@ -34,12 +34,12 @@ func NewConnection(params ConnectionParams) (*sql.DB, error) {
 	return dbo, nil
 }
 
-func NewStorage(db *sql.DB, log *logger.Logger, debug bool) *Queries {
-	return &Queries{db: db, log: log, debug: debug}
-}
-
 type Queries struct {
 	db    *sql.DB
 	log   *logger.Logger
 	debug bool
+}
+
+func NewStorage(db *sql.DB, log *logger.Logger, debug bool) *Queries {
+	return &Queries{db: db, log: log, debug: debug}
 }
