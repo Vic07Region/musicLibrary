@@ -257,8 +257,14 @@ func (q *Queries) AddSong(ctx context.Context, request AddSongRequest) (*AddSong
 	err = insertGroup.RunWith(tx).QueryRowContext(ctxWithTimeout).Scan(&groupID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			psql.Select("group_id").From("groups").
+			err = psql.Select("group_id").From("groups").
 				Where(sq.Eq{"name": request.GroupName}).RunWith(tx).QueryRowContext(ctx).Scan(&groupID)
+			if err != nil {
+				if q.debug {
+					q.log.Error("database.AddSong | insertGroup GetGroupID", "error", err.Error())
+				}
+				return nil, err
+			}
 		} else {
 			if q.debug {
 				q.log.Error("database.AddSong | insertGroup.QueryRowContext", "error", err.Error())
