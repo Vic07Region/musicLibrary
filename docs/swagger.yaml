@@ -1,0 +1,303 @@
+definitions:
+  endpoint.MessageError:
+    properties:
+      message:
+        type: string
+    type: object
+  endpoint.NewSong:
+    properties:
+      group:
+        type: string
+      song:
+        type: string
+    required:
+    - group
+    - song
+    type: object
+  endpoint.Song:
+    properties:
+      group:
+        example: Muse
+        type: string
+      id:
+        example: 1
+        type: integer
+      link:
+        example: https://www.youtube.com/watch?v=Xsp3_a-PMTw
+        type: string
+      releaseDate:
+        example: "1987-07-03T00:00:00Z"
+        type: string
+      song:
+        example: Supermassive Black Hole
+        type: string
+    type: object
+  endpoint.UpdateSong:
+    properties:
+      group:
+        type: string
+      link:
+        type: string
+      releaseDate:
+        type: string
+      song:
+        type: string
+    type: object
+  endpoint.UpdateVerseRequest:
+    properties:
+      verse_number:
+        type: integer
+      verse_text:
+        type: string
+    type: object
+  service.DeleteSongResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  service.FetchVersesResponse:
+    properties:
+      total_count:
+        type: integer
+      verses:
+        items:
+          $ref: '#/definitions/service.VerseSmall'
+        type: array
+    type: object
+  service.UpdateSongResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  service.UpdateVerseResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  service.VerseSmall:
+    properties:
+      verse_number:
+        type: integer
+      verse_text:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /songs:
+    get:
+      consumes:
+      - application/json
+      description: fetching song list
+      parameters:
+      - description: group name
+        example: Muse
+        in: query
+        name: group
+        type: string
+      - description: song name
+        example: Supermassive Black Hole
+        in: query
+        name: song
+        type: string
+      - description: items limit
+        example: 10
+        in: query
+        name: limit
+        type: integer
+      - description: offset items
+        example: 2
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/endpoint.Song'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "500":
+          description: Internal Server Error
+      summary: List songs
+      tags:
+      - Songs
+  /songs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: deleting song
+      parameters:
+      - description: Song ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.DeleteSongResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "500":
+          description: Internal Server Error
+      summary: Delete Song
+      tags:
+      - Songs
+    get:
+      consumes:
+      - application/json
+      description: fetching song text
+      parameters:
+      - description: Song ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: items limit
+        example: 10
+        in: query
+        name: limit
+        type: integer
+      - description: offset items
+        example: 2
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.FetchVersesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "500":
+          description: Internal Server Error
+      summary: Song text
+      tags:
+      - Songs
+    patch:
+      consumes:
+      - application/json
+      description: edit song
+      parameters:
+      - description: Song ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/endpoint.UpdateSong'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.UpdateSongResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "500":
+          description: Internal Server Error
+      summary: Edit Song
+      tags:
+      - Songs
+  /songs/{id}/verse:
+    patch:
+      consumes:
+      - application/json
+      description: edit song verse
+      parameters:
+      - description: Song ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/endpoint.UpdateVerseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.UpdateVerseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "500":
+          description: Internal Server Error
+      summary: Edit Song Verse
+      tags:
+      - Songs
+  /songs/new:
+    post:
+      consumes:
+      - application/json
+      description: create new song
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/endpoint.NewSong'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/endpoint.Song'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/endpoint.MessageError'
+        "500":
+          description: Internal Server Error
+      summary: New song
+      tags:
+      - Songs
+swagger: "2.0"
