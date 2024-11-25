@@ -1,14 +1,16 @@
 package endpoint
 
 import (
+	"errors"
 	"fmt"
-	"github.com/Vic07Region/musicLibrary/internal/lib/logger"
+	"net/http"
+	"strconv"
+	"time" //nolint:gci
+
+	"github.com/Vic07Region/musicLibrary/internal/lib/logger" //nolint:gci
 	"github.com/Vic07Region/musicLibrary/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 type Endpoint struct {
@@ -25,7 +27,6 @@ func New(s service.MusicService, log *logger.Logger) *Endpoint {
 
 // @BasePath /api/v1
 
-// ListSongs lists all existing songs
 // @Summary List songs
 // @Schemes
 // @Description fetching song list
@@ -85,7 +86,6 @@ func (e *Endpoint) FetchSongsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, songsResp)
 }
 
-// SongText Text song
 // @Summary Song text
 // @Schemes
 // @Description fetching song text
@@ -103,13 +103,13 @@ func (e *Endpoint) FetchSongsHandler(c *gin.Context) {
 func (e *Endpoint) FetchSongTextHandler(c *gin.Context) {
 	var fetchParams service.FetchVersesRequest
 
-	param_id := c.Param("id")
-	song_id, err := strconv.Atoi(param_id)
+	paramID := c.Param("id")
+	songId, err := strconv.Atoi(paramID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, MessageError{"wrong format id"})
 	}
 
-	fetchParams.SongID = song_id
+	fetchParams.SongID = songId
 
 	if val, ok := c.GetQuery("offset"); ok {
 		if intval, err := strconv.Atoi(val); err == nil {
@@ -147,15 +147,15 @@ func (e *Endpoint) FetchSongTextHandler(c *gin.Context) {
 // @Failure      500
 // @Router /songs/{id} [delete]
 func (e *Endpoint) DeleteSongHandler(c *gin.Context) {
-	param_id := c.Param("id")
+	paramID := c.Param("id")
 
-	song_id, err := strconv.Atoi(param_id)
+	songID, err := strconv.Atoi(paramID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, MessageError{"wrong format id"})
 	}
-	resp, err := e.s.DeleteSong(c.Request.Context(), service.DeleteSongRequest{SongID: song_id})
+	resp, err := e.s.DeleteSong(c.Request.Context(), service.DeleteSongRequest{SongID: songID})
 	if err != nil {
-		if err == service.SongNotFoundError {
+		if errors.Is(err, service.ErrSongNotFound) {
 			c.JSON(http.StatusNotFound, MessageError{err.Error()})
 			return
 		}
@@ -239,11 +239,11 @@ func (e *Endpoint) UpdateSongHandler(c *gin.Context) {
 
 	resp, err := e.s.UpdateSong(c.Request.Context(), request)
 	if err != nil {
-		if err == service.SongNotFoundError {
+		if errors.Is(err, service.ErrSongNotFound) {
 			c.JSON(http.StatusNotFound, MessageError{err.Error()})
 			return
 		}
-		if err == service.GroupNotFoundError {
+		if errors.Is(err, service.ErrGroupNotFound) {
 			c.JSON(http.StatusNotFound, MessageError{err.Error()})
 			return
 		}
@@ -311,7 +311,7 @@ func (e *Endpoint) UpdateSongVerseHandler(c *gin.Context) {
 
 	resp, err := e.s.UpdateVerse(c.Request.Context(), request)
 	if err != nil {
-		if err == service.SongNotFoundError {
+		if errors.Is(err, service.ErrSongNotFound) {
 			c.JSON(http.StatusNotFound, MessageError{err.Error()})
 			return
 		}
@@ -321,7 +321,7 @@ func (e *Endpoint) UpdateSongVerseHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// @Summary New song
+// NewSongHandler @Summary New song
 // @Schemes
 // @Description create new song
 // @Tags Songs

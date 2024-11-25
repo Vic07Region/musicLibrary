@@ -3,9 +3,10 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"github.com/Vic07Region/musicLibrary/internal/lib/logger"
-	_ "github.com/lib/pq"
-	"time"
+	"time" //nolint:gci
+
+	"github.com/Vic07Region/musicLibrary/internal/lib/logger" //nolint:gci
+	_ "github.com/lib/pq"                                     //nolint:gci
 )
 
 type ConnectionParams struct {

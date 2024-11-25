@@ -1,12 +1,14 @@
 -- +goose Up
 -- +goose StatementBegin
--- Table: Groups
-CREATE TABLE groups (
+
+-- Table: groups
+CREATE TABLE  groups(
     group_id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE
 );
 
--- Table: Songs
+
+-- Table: songs
 CREATE TABLE songs (
     song_id SERIAL PRIMARY KEY,
     group_id INT NOT NULL,
@@ -17,7 +19,7 @@ CREATE TABLE songs (
     CONSTRAINT unique_group_song UNIQUE (group_id, song)
 );
 
--- Table: Verses
+-- Table: verses
 CREATE TABLE verses (
     verse_id SERIAL PRIMARY KEY,
     song_id INT NOT NULL,

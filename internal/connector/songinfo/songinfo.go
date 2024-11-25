@@ -2,18 +2,19 @@ package songinfo
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/Vic07Region/musicLibrary/internal/lib/logger"
-	"net/http"
+	"fmt"      //nolint:gci
+	"net/http" //nolint:gci
+
+	"github.com/Vic07Region/musicLibrary/internal/lib/logger" //nolint:gci
 )
 
 var (
-	GroupNameRequiredError = fmt.Errorf("group name is required")
-	SongNameRequiredError  = fmt.Errorf("song name is required")
-	ServiceInternalError   = fmt.Errorf("song Storage internal service error")
-	ServiceBadRequestError = fmt.Errorf("song Storage bad request")
-	SerializeError         = fmt.Errorf("song Storage bad request")
-	ServiceUnknowError     = fmt.Errorf("song Storage unknow error")
+	ErrGroupNameRequired = fmt.Errorf("group name is required")
+	ErrSongNameRequired  = fmt.Errorf("song name is required")
+	ErrServiceInternal   = fmt.Errorf("song Storage internal service error")
+	ErrServiceBadRequest = fmt.Errorf("song Storage bad request")
+	ErrSerialize         = fmt.Errorf("song Storage bad request")
+	ErrServiceUnknow     = fmt.Errorf("song Storage unknow error")
 )
 
 type InfoSerice interface {
@@ -21,12 +22,12 @@ type InfoSerice interface {
 }
 
 type SongStorage struct {
-	baseUrl string
+	baseURL string
 	log     *logger.Logger
 }
 
-func New(baseUrl string, log *logger.Logger) InfoSerice {
-	return &SongStorage{baseUrl: baseUrl, log: log}
+func New(baseURL string, log *logger.Logger) InfoSerice {
+	return &SongStorage{baseURL: baseURL, log: log}
 }
 
 type SongInfo struct {
@@ -43,20 +44,20 @@ type FetchSongInfoParam struct {
 func (s *SongStorage) FetchSongInfo(params FetchSongInfoParam) (*SongInfo, error) {
 	if params.GroupName == "" {
 		s.log.Error("songinfo.FetchSongInfo | empty GroupName")
-		return nil, GroupNameRequiredError
+		return nil, ErrGroupNameRequired
 	}
 
 	if params.SongName == "" {
 		s.log.Error("songinfo.FetchSongInfo | empty SongName")
-		return nil, SongNameRequiredError
+		return nil, ErrSongNameRequired
 	}
-	url := s.baseUrl
+	url := s.baseURL
 	resp, err := http.Get(url)
 	if err != nil {
 		s.log.Error(fmt.Sprintf("songinfo.FetchSongInfo http.Get(%s)", url),
 			"error", err.Error(),
 		)
-		return nil, ServiceInternalError
+		return nil, ErrServiceInternal
 	}
 
 	defer resp.Body.Close()
@@ -70,16 +71,16 @@ func (s *SongStorage) FetchSongInfo(params FetchSongInfoParam) (*SongInfo, error
 				"songinfo.FetchSongInfo | Song info service Decode body",
 				"error", err.Error(),
 			)
-			return nil, SerializeError
+			return nil, ErrSerialize
 		}
 	case http.StatusBadRequest:
-		return nil, ServiceBadRequestError
+		return nil, ErrServiceBadRequest
 	case http.StatusInternalServerError:
-		return nil, ServiceInternalError
+		return nil, ErrServiceInternal
 	default:
 		s.log.Error(
 			"songinfo.FetchSongInfo response", "error", resp.Status)
-		return nil, ServiceUnknowError
+		return nil, ErrServiceUnknow
 	}
 
 	return &song, err

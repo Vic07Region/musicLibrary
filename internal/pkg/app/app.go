@@ -2,7 +2,11 @@ package app
 
 import (
 	"database/sql"
-	"fmt"
+	"fmt" //nolint:gci
+	"os"
+	"strconv"
+	"time"
+
 	"github.com/Vic07Region/musicLibrary/docs"
 	"github.com/Vic07Region/musicLibrary/internal/app/endpoint"
 	"github.com/Vic07Region/musicLibrary/internal/connector/songinfo"
@@ -11,13 +15,10 @@ import (
 	"github.com/Vic07Region/musicLibrary/internal/lib/csmaker"
 	"github.com/Vic07Region/musicLibrary/internal/lib/logger"
 	"github.com/Vic07Region/musicLibrary/internal/service"
-	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin" //nolint:gci
 	"github.com/joho/godotenv"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"os"
-	"strconv"
-	"time"
 )
 
 const (

@@ -4,15 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
+	"fmt" //nolint:gci
+	"time"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/lib/pq"
-	_ "github.com/lib/pq"
-	"time"
 )
 
 var (
-	DuplicateKeyError = fmt.Errorf("duplicate key value violates uniqueness constraint")
+	ErrDuplicateKey = fmt.Errorf("duplicate key value violates uniqueness constraint")
 )
 
 type Storage interface {
@@ -29,9 +29,6 @@ type Storage interface {
 
 func ILikeAny(column string, value string) sq.Sqlizer {
 	return sq.ILike{column: fmt.Sprintf("%%%s%%", value)}
-}
-func LikeAny(column string, value string) sq.Sqlizer {
-	return sq.Like{column: fmt.Sprintf("%%%s%%", value)}
 }
 
 func (q *Queries) GetGroupID(ctx context.Context, groupName string) (int64, error) {
@@ -248,7 +245,7 @@ func (q *Queries) AddSong(ctx context.Context, request AddSongRequest) (*AddSong
 		}
 		return nil, err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback() //nolint:errcheck
 
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	insertGroup := psql.Insert("groups").Columns("name").
@@ -286,7 +283,7 @@ func (q *Queries) AddSong(ctx context.Context, request AddSongRequest) (*AddSong
 		var pgErr *pq.Error
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == "23505" {
-				return nil, DuplicateKeyError
+				return nil, ErrDuplicateKey
 			}
 		}
 		return nil, err

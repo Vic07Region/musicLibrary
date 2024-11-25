@@ -4,25 +4,22 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
+	"fmt" //nolint:gci
 	"github.com/Vic07Region/musicLibrary/internal/connector/songinfo"
 	"github.com/Vic07Region/musicLibrary/internal/database"
 	"github.com/Vic07Region/musicLibrary/internal/lib/logger"
-	"strings"
+	"strings" //nolint:gci
 	"time"
 )
 
 var (
-	SongNotFoundError  = fmt.Errorf("song is not found")
-	GroupNotFoundError = fmt.Errorf("group is not found")
-	NoSongsError       = fmt.Errorf("there are no songs that meet the request")
-	SongExistError     = fmt.Errorf("A song with this group and name already exists")
-	// BadDataFormatError BadRequestError      = fmt.Errorf("bad reqiest")
-	//UnknowError          = fmt.Errorf("unknow error")
-	BadDataFormatError = fmt.Errorf("wrong release date format")
-	// RequestError SongInfoserviceError = fmt.Errorf("song info service InternalServerError")
-	RequestError = fmt.Errorf("request execution error")
-	TimeOutError = fmt.Errorf("request timeout exceeded")
+	ErrSongNotFound  = fmt.Errorf("song is not found")
+	ErrGroupNotFound = fmt.Errorf("group is not found")
+	ErrNoSongs       = fmt.Errorf("there are no songs that meet the request")
+	ErrSongExist     = fmt.Errorf("A song with this group and name already exists")
+	ErrBadDataFormat = fmt.Errorf("wrong release date format")
+	ErrRequest       = fmt.Errorf("request execution error")
+	ErrTimeOut       = fmt.Errorf("request timeout exceeded")
 )
 
 type MusicService interface {
@@ -77,11 +74,11 @@ func (s *Service) FetchSongs(ctx context.Context, request FetchSongsRequest) (*F
 		s.log.Error("service.FetchSongs: GetSongs", "error", err.Error())
 		switch {
 		case errors.Is(err, context.DeadlineExceeded):
-			return nil, TimeOutError
+			return nil, ErrTimeOut
 		case errors.Is(err, sql.ErrNoRows):
-			return nil, NoSongsError
+			return nil, ErrNoSongs
 		default:
-			return nil, RequestError
+			return nil, ErrRequest
 		}
 	}
 
@@ -90,9 +87,9 @@ func (s *Service) FetchSongs(ctx context.Context, request FetchSongsRequest) (*F
 		s.log.Error("service.FetchSongs: CountSongs", "error", err.Error())
 		switch {
 		case errors.Is(err, context.DeadlineExceeded):
-			return nil, TimeOutError
+			return nil, ErrTimeOut
 		default:
-			return nil, RequestError
+			return nil, ErrRequest
 		}
 	}
 
@@ -143,9 +140,9 @@ func (s *Service) FetchVerses(ctx context.Context, request FetchVersesRequest) (
 		s.log.Error("service.FetchVerses: GetVerses", "error", err.Error())
 		switch {
 		case errors.Is(err, context.DeadlineExceeded):
-			return nil, TimeOutError
+			return nil, ErrTimeOut
 		default:
-			return nil, RequestError
+			return nil, ErrRequest
 		}
 	}
 
@@ -154,9 +151,9 @@ func (s *Service) FetchVerses(ctx context.Context, request FetchVersesRequest) (
 		s.log.Error("service.FetchVerses: CountVerses", "error", err.Error())
 		switch {
 		case errors.Is(err, context.DeadlineExceeded):
-			return nil, TimeOutError
+			return nil, ErrTimeOut
 		default:
-			return nil, RequestError
+			return nil, ErrRequest
 		}
 	}
 
@@ -199,11 +196,11 @@ func (s *Service) DeleteSong(ctx context.Context, request DeleteSongRequest) (*D
 		switch {
 		case errors.Is(err, context.DeadlineExceeded):
 
-			return &reponse, TimeOutError
+			return &reponse, ErrTimeOut
 		case errors.Is(err, sql.ErrNoRows):
-			return &reponse, SongNotFoundError
+			return &reponse, ErrSongNotFound
 		default:
-			return &reponse, RequestError
+			return &reponse, ErrRequest
 		}
 	}
 
@@ -245,11 +242,11 @@ func (s *Service) UpdateSong(ctx context.Context, request UpdateSongRequest) (Up
 		if err != nil {
 			switch {
 			case errors.Is(err, context.DeadlineExceeded):
-				return result, TimeOutError
+				return result, ErrTimeOut
 			case errors.Is(err, sql.ErrNoRows):
-				return result, GroupNotFoundError
+				return result, ErrGroupNotFound
 			default:
-				return result, RequestError
+				return result, ErrRequest
 			}
 		}
 		songParam.GroupID = &groupID
@@ -261,11 +258,11 @@ func (s *Service) UpdateSong(ctx context.Context, request UpdateSongRequest) (Up
 		s.log.Error("service.UpdateSong | UpdateSong", "error", err.Error())
 		switch {
 		case errors.Is(err, context.DeadlineExceeded):
-			return result, TimeOutError
+			return result, ErrTimeOut
 		case errors.Is(err, sql.ErrNoRows):
-			return result, SongNotFoundError
+			return result, ErrSongNotFound
 		default:
-			return result, RequestError
+			return result, ErrRequest
 		}
 	}
 	result.Success = true
@@ -302,11 +299,11 @@ func (s *Service) UpdateVerse(ctx context.Context, request UpdateVerseRequest) (
 		switch {
 		case errors.Is(err, context.DeadlineExceeded):
 
-			return result, TimeOutError
+			return result, ErrTimeOut
 		case errors.Is(err, sql.ErrNoRows):
-			return result, SongNotFoundError
+			return result, ErrSongNotFound
 		default:
-			return result, RequestError
+			return result, ErrRequest
 		}
 	}
 	result.Success = true
@@ -340,7 +337,7 @@ func (s *Service) NewSong(ctx context.Context, request NewSongRequest) (*Song, e
 	releaseDate, err := time.Parse("02.01.2006", songInfo.ReleaseDate)
 	if err != nil {
 		s.log.Warn("service.NewSong | parse release date", "Error", err.Error())
-		return nil, BadDataFormatError
+		return nil, ErrBadDataFormat
 	}
 	fullText := strings.ReplaceAll(songInfo.Text, "\\n", "\n")
 	verseSplit := strings.Split(fullText, "\n\n")
@@ -371,14 +368,13 @@ func (s *Service) NewSong(ctx context.Context, request NewSongRequest) (*Song, e
 		s.log.Error("service.NewSong | CreateSong", "error", err.Error())
 		switch {
 		case errors.Is(err, context.DeadlineExceeded):
-			return nil, TimeOutError
-		case errors.Is(err, database.DuplicateKeyError):
-			return nil, SongExistError
+			return nil, ErrTimeOut
+		case errors.Is(err, database.ErrDuplicateKey):
+			return nil, ErrSongExist
 		default:
-			return nil, RequestError
+			return nil, ErrRequest
 		}
 	}
-	//todo переосмыслить ошибки
 
 	song := Song{
 		ID:          int(newSong.SongID),

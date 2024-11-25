@@ -1,7 +1,7 @@
 package migrate
 
 import (
-	"database/sql"
+	"database/sql" //nolint:gci
 	"github.com/pressly/goose/v3"
 )
 
